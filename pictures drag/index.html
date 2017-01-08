@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<style>
+#wrap{
+	width: 700px;
+	height: 350px;
+	border: 2px solid blue;
+	margin: 50px auto;
+	position: relative;
+}
+input{
+	width: 80px;
+	height: 30px;
+	position: absolute;
+	left: 0;
+	top: -35px;
+}
+img{
+	width: 150px;
+	height: 150px;
+	display: block;
+	position: absolute;
+	border: 2px solid yellow;
+}	
+</style>
+<!-- <script type="text/javascript" src="duang.js"></script> -->
+<script src="miaov.js"></script>
+<script>
+window.onload=function(){
+	var wrap=document.querySelector("#wrap");
+	var img=document.querySelectorAll("img");
+	var btn=document.querySelector("input");
+	var data=[];
+	var data2=[];
+	var arr=[];
+	var arr1=[];
+	var n=null;
+	var m;
+	var detal=null;
+	//第一行图片定位	
+	for (var i = 0; i < 4; i++) {
+		img[i].style.left=i*170+"px";
+	}
+	//第二行图片定位
+	for (var i = 4; i < img.length; i++) {
+		img[i].style.left=(i-4)*170+"px";
+		img[i].style.top=170+"px";
+	};
+	//获取图片地址
+	for (var i = 0; i < img.length; i++){
+		data.push(img[i].src);
+		img[i].index=i;
+		//随机排序
+		btn.onclick=function(){
+			data2=data.sort(function(){
+				return Math.random() -.5;
+			});
+			for (var i = 0; i < img.length; i++) {
+				img[i].src=data2[i];
+			};
+		}
+
+
+		//移动图片
+		img[i].onmousedown=function(e){
+			for (var i = 0; i < img.length; i++) {
+				img[i].style.zIndex=1;
+			};
+			this.style.zIndex=999;
+			n=this.index;
+			startMouseX=e.clientX;
+			startMouseY=e.clientY;
+			imgX=this.offsetLeft;
+			imgY=this.offsetTop;//console.log(imgX,imgY)
+			img[n].onmousemove=function(e){
+				var disX=e.clientX-startMouseX;
+				var disY=e.clientY-startMouseY;
+				var top=imgY+disY;
+				var left=imgX+disX;
+				img[n].style.left=left+"px";
+				img[n].style.top=top+"px";
+
+				//比较每张图片中心点到当前图片的距离
+				for (var i = 0; i < img.length; i++) {
+					if (img[i]!=img[n]) {
+						//var cx=img[i].offsetLeft+w;
+						var a=img[i].offsetLeft-img[n].offsetLeft;
+						var b=img[i].offsetTop-img[n].offsetTop;
+						var c=Math.abs(a)+Math.abs(b);
+						arr.push(c);
+						var arr1=arr.slice(arr.length-7,arr.length);
+						var x=Math.min.apply(null,arr1);
+						m=arr1.indexOf(x);
+						
+					};	
+				};
+				if (n>m) {console.log(m)
+					for (var i = 0; i < img.length; i++) {
+						img[i].style.borderColor="";
+						img[i].style.borderStyle="";
+					};
+					img[m].style.borderColor="blue";
+					img[m].style.borderStyle="dashed";
+				}
+				if (n<m+1) {
+					for (var i = 0; i < img.length; i++) {
+						img[i].style.borderColor="";
+						img[i].style.borderStyle="";
+					};
+					img[m+1].style.borderColor="blue";
+					img[m+1].style.borderStyle="dashed";
+				}
+				
+			}
+	
+		document.onmouseup=function(){
+
+			if (n>m) {
+				for (var i = 0; i < img.length; i++) {
+					img[i].style.borderColor="";
+				};
+				// img[m].style.borderColor="skyblue";
+				// img[m].style.borderStyle="dashed";
+				var a0=b0=c0=0;
+				var a0=img[m].getBoundingClientRect().left-img[n].getBoundingClientRect().left;
+				var b0=img[m].getBoundingClientRect().top-img[n].getBoundingClientRect().top;
+				var c1=a0*a0+b0*b0;
+				var c0=Math.sqrt(c1)
+				var c0=c0;console.log(a0,b0,n,m,c0);
+				if (c0<90) {
+					detal=img[n].src;
+					img[n].src=img[m].src;
+					img[m].src=detal;
+					mTween(img[n],{left:imgX,top:imgY},500,"easeOut");
+				}else{
+					mTween(img[n],{left:imgX,top:imgY},500,"easeOut");
+				};
+				img[m].style.borderStyle="";
+			};
+			if (m+1>n) {
+				for (var i = 0; i < img.length; i++) {
+					img[i].style.borderColor="";
+				};
+				// img[m+1].style.borderColor="skyblue";
+				// img[m+1].style.borderStyle="dashed";
+
+			//计算距离最小的两张图片之间的距离，当距离小于一定数值时，两张图片的位置进行交换
+				var a0=b0=c0=0;
+				var a0=img[m+1].getBoundingClientRect().left-img[n].getBoundingClientRect().left;
+				var b0=img[m+1].getBoundingClientRect().top-img[n].getBoundingClientRect().top;
+				var c1=a0*a0+b0*b0;
+				//求平方函数
+				//var c0=Math.sqrt(Math.pow(a0,2)+Math.pow(b0,2));
+				var c0=Math.sqrt(c1)
+				var c1=c0;console.log(a0,b0,n,m,c0);
+				if (c0<80) {//规定一个判定值（自行定义）
+					detal=img[n].src;
+					img[n].src=img[m+1].src;
+					img[m+1].src=detal;
+					mTween(img[n],{left:imgX,top:imgY},500,"easeOut");
+				}else{
+					mTween(img[n],{left:imgX,top:imgY},500,"easeOut");
+				};
+				img[m+1].style.borderStyle="";
+			};
+			//提升层级 
+			for (var i = 0; i < img.length; i++) {
+				img[i].style.zIndex=999;
+			};
+			img[n].style.zIndex=1;
+			img[n].onmousemove=null;
+			document.onmouseup=null;
+		}
+		return false;
+	}
+}
+};
+</script>
+<body>
+<div id="wrap">
+	<input type="button" value="随机排序">
+	<img src="img/1.jpg">
+	<img src="img/2.jpg">
+	<img src="img/3.jpg">
+	<img src="img/4.jpg">
+	<img src="img/5.jpg">
+	<img src="img/6.jpg">
+	<img src="img/7.jpg">
+	<img src="img/8.jpg">
+</div>	
+</body>
+</html>
